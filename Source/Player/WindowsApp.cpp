@@ -4,6 +4,8 @@
 
 #include "WindowsPrecompiled.h"
 #include "Res/resource.h"
+#include "SoftRenderer.h"
+#include "DisplaySetting.h"
 
 static HWND hMainWnd;
 static HMENU hMenu;
@@ -80,7 +82,8 @@ static void InitInstance(HINSTANCE hInstance, LPCTSTR lpCmdLine, int nCmdShow)
 	wcex.lpszClassName = className;
 	RegisterClassEx(&wcex);
 
-	hMainWnd = CreateAppWindow(szTitle, className, 800, 600, false);
+	DisplaySetting::Inst().SetSize(ScreenPoint(800, 600));
+	hMainWnd = CreateAppWindow(szTitle, className, DisplaySetting::Inst().GetSize().X, DisplaySetting::Inst().GetSize().Y, false);
 }
 
 static HWND CreateAppWindow(const TCHAR *title, const TCHAR *classname, int width, int height, bool fullscreen) 
@@ -88,8 +91,8 @@ static HWND CreateAppWindow(const TCHAR *title, const TCHAR *classname, int widt
 	RECT rect;
 	rect.left = 0;
 	rect.top = 0;
-	rect.right = 800 - 1;
-	rect.bottom = 600 - 1;
+	rect.right = DisplaySetting::Inst().GetSize().X - 1;
+	rect.bottom = DisplaySetting::Inst().GetSize().Y - 1;
 	AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
 	int WindowWidth = rect.right - rect.left + 1;
 	int WindowHeight = rect.bottom - rect.top + 1;
@@ -102,11 +105,14 @@ static HWND CreateAppWindow(const TCHAR *title, const TCHAR *classname, int widt
 	::SetForegroundWindow(hwnd);
 	::SetFocus(hwnd);
 
+	SoftRenderer::Inst().Initialize(hwnd);
+
 	return hwnd;
 }
 
 static void DestroyAppWindow(HWND hwnd) 
 {
+	SoftRenderer::Inst().Shutdown();
 	::DestroyWindow(hwnd);
 }
 
@@ -195,7 +201,7 @@ static bool LoopInstance()
 	}
 
 	// Set Update Login Here.
-
+	SoftRenderer::Inst().Update();
 	return true;
 }
 
