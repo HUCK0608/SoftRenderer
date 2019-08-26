@@ -19,7 +19,7 @@ static TCHAR szFullTitle[100];
 #define SIZEOF(a) ((int)(sizeof(a) / sizeof((a)[0])))
 
 static void InitInstance(HINSTANCE hInstance, LPCTSTR lpCmdLine, int nCmdShow);
-static HWND CreateAppWindow(const TCHAR *title, const TCHAR *classname, int width, int height, bool fullscreen);
+static HWND CreateAppWindow(const TCHAR *title, const TCHAR *classname, bool fullscreen);
 static void DestroyAppWindow(HWND hwnd);
 static void ShutdownInstance();
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -83,10 +83,10 @@ static void InitInstance(HINSTANCE hInstance, LPCTSTR lpCmdLine, int nCmdShow)
 	RegisterClassEx(&wcex);
 
 	DisplaySetting::Inst().SetSize(ScreenPoint(800, 600));
-	hMainWnd = CreateAppWindow(szTitle, className, DisplaySetting::Inst().GetSize().X, DisplaySetting::Inst().GetSize().Y, false);
+	hMainWnd = CreateAppWindow(szTitle, className, false);
 }
 
-static HWND CreateAppWindow(const TCHAR *title, const TCHAR *classname, int width, int height, bool fullscreen) 
+static HWND CreateAppWindow(const TCHAR *title, const TCHAR *classname, bool fullscreen) 
 {
 	RECT rect;
 	rect.left = 0;
