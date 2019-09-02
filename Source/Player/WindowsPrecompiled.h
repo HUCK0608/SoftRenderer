@@ -10,3 +10,5 @@
 #include <tchar.h>
 #include <math.h>
 
+#include "MathHeaders.h"
+

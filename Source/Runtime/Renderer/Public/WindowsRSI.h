@@ -22,6 +22,8 @@ public:
 	virtual void BeginFrame() override;
 	virtual void EndFrame() override { SwapBuffer(); }
 
+	virtual void DrawScreenPoint(const ScreenPoint& InPoint, const LinearColor& InColor);
+
 private:
 
 };

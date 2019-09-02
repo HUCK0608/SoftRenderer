@@ -15,4 +15,6 @@ public:
 	virtual void Clear(const LinearColor& InClearColor) = 0;
 	virtual void BeginFrame() = 0;
 	virtual void EndFrame() = 0;
+
+	virtual void DrawScreenPoint(const ScreenPoint& InPoint, const LinearColor& InColor) = 0;
 };

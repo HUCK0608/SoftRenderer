@@ -24,3 +24,8 @@ void WindowsRSI::BeginFrame()
 {
 
 }
+
+void WindowsRSI::DrawScreenPoint(const ScreenPoint & InScreenPos, const LinearColor & InColor)
+{
+	PutPixel(InScreenPos, InColor.ToColor32());
+}
