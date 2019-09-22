@@ -25,7 +25,8 @@ public:
 public:
 	// Little Endian Order
 	union { struct { BYTE B, G, R, A; }; BYTE Dummy; };
-
+	// 제일 큰 멤버의 메모리 공간을 가짐 = 4바이트 
+	// 구조체로 BGRA의 순번을 가지게 함
 };
 
 FORCEINLINE bool Color32::operator==(const Color32& InC) const

@@ -2,6 +2,7 @@
 #include "WindowsPrecompiled.h"
 #include "SoftRenderer.h"
 #include "WindowsRSI.h"
+#include "MathHeaders.h"
 
 void SoftRenderer::Initialize()
 {
@@ -26,35 +27,34 @@ void SoftRenderer::Update()
 {
 	if (RSI != nullptr)
 	{
-		// RSI->BeginFrame();
-		RSI->Clear(LinearColor(0.125f, 0.5f, 1.f, 1.f));
-		
-		// Render Code
-		RSI->DrawScreenPoint(ScreenPoint(0, 0), LinearColor(1.f, 0.f, 0.f, 1.f));
+		RSI->Clear(LinearColor(0.125f, 0.5f, 1.f, 1.f)); 
 
-		// Draw Circle
-		Vector2 center(0.f, 0.f);
-		float radius = 30.f;
+		//RenderCode
 
-		Vector2 minPos = Vector2(center.X - radius, center.Y - radius);
-		Vector2 maxPos = Vector2(center.X + radius, center.Y + radius);
+		// Set Vertex
+		VertexData v[4];
+		v[0].Position = Vector2(100.0f, 100.0f);
+		v[0].Color = LinearColor(1.0f, 0.0f, 0.0f);
+		v[1].Position = Vector2(-100.0f, -100.0f);
+		v[1].Color = LinearColor(1.0f, 0.0f, 0.0f);
+		v[2].Position = Vector2(-100.0f, 100.0f);
+		v[2].Color = LinearColor(0.0f, 0.0f, 1.0f);
+		v[3].Position = Vector2(100.0f, -100.0f);
+		v[3].Color = LinearColor(0.0f, 1.0f, 0.0f);
 
-		ScreenPoint minPosScreen(minPos);
-		ScreenPoint maxPosScreen(maxPos);
+		// Set Index
+		int i[6];
+		i[0] = 0;
+		i[1] = 1;
+		i[2] = 2;
+		i[3] = 0;
+		i[4] = 1;
+		i[5] = 3;
 
-		LinearColor circleColor(1.f, 0.f, 0.f, 1.f);
-		for (int x = minPosScreen.X; x <= maxPosScreen.X; x++)
-		{
-			for (int y = minPosScreen.Y; y <= maxPosScreen.Y; y++)
-			{
-				ScreenPoint targetPixel(x, y);
-				Vector2 targetPos = targetPixel.ToVector2();
-				float distSquare = (targetPos - center).SizeSquared();
-
-				if(distSquare <= radius * radius)
-					RSI->DrawScreenPoint(targetPixel, circleColor);
-			}
-		}
+		// Draw Primitive
+		RSI->SetVertexBuffer(v);
+		RSI->SetIndexBuffer(i);
+		RSI->DrawPrimitive();
 
 		RSI->EndFrame();
 	}

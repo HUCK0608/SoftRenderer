@@ -20,9 +20,12 @@ public:
 
 	virtual void Clear(const LinearColor& InClearColor) override;
 	virtual void BeginFrame() override;
-	virtual void EndFrame() override { SwapBuffer(); }
+	virtual void EndFrame() override;
 
-	virtual void DrawScreenPoint(const ScreenPoint& InPoint, const LinearColor& InColor);
+	virtual void DrawScreenPoint(const ScreenPoint& InPoint, const LinearColor& InColor) override;
+	virtual void SetVertexBuffer(VertexData* InVertexData) override;
+	virtual void SetIndexBuffer(const int* InIndexData) override;
+	virtual void DrawPrimitive() override;
 
 private:
 

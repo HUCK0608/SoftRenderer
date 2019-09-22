@@ -10,14 +10,16 @@ struct Math
 	static const float HalfPI;
 	static const float InvPI;
 
-	static FORCEINLINE int TruncToInt(float InFloat)
+	static FORCEINLINE int TruncToInt(float InFloat) 
 	{
+	// 소수점을버리는 함수 > 왜 캐스팅을 안하고 이 함수를 쓸까? 
 		return _mm_cvtt_ss2si(_mm_set_ss(InFloat));
 	}
 
 	static FORCEINLINE int RoundToInt(float InFloat)
 	{
 		// Note: the x2 is to workaround the rounding-to-nearest-even-number issue when the fraction is .5
+		//float를 int로 반올림 
 		return _mm_cvt_ss2si(_mm_set_ss(InFloat + InFloat + 0.5f)) >> 1;
 	}
 

@@ -1,6 +1,7 @@
 
 #include "Precompiled.h"
 #include "WindowsRSI.h"
+#include "TriangleRasterizer.h"
 
 void WindowsRSI::Init(const bool InbSRGBColorSpace)
 {
@@ -25,7 +26,54 @@ void WindowsRSI::BeginFrame()
 
 }
 
-void WindowsRSI::DrawScreenPoint(const ScreenPoint & InScreenPos, const LinearColor & InColor)
+void WindowsRSI::EndFrame()
 {
-	PutPixel(InScreenPos, InColor.ToColor32());
+	SwapBuffer();
+}
+
+void WindowsRSI::DrawScreenPoint(const ScreenPoint & InPoint, const LinearColor & InColor)
+{
+	PutPixel(InPoint,InColor.ToColor32());
+}
+
+void WindowsRSI::SetVertexBuffer(VertexData * InVertexData)
+{
+	VertexBuffer = InVertexData;
+}
+
+void WindowsRSI::SetIndexBuffer(const int * InIndexData)
+{
+	IndexBuffer = InIndexData;
+}
+
+void WindowsRSI::DrawPrimitive()
+{
+
+	if (VertexBuffer == NULL || IndexBuffer == NULL) return;
+
+	UINT triangleCount = (int)(sizeof(IndexBuffer) / 3);
+	for (UINT ti = 0; ti < triangleCount; ti++)
+	{
+		TriangleRasterizer t(
+			VertexBuffer[IndexBuffer[ti * 3]],
+			VertexBuffer[IndexBuffer[ti * 3 + 1]],
+			VertexBuffer[IndexBuffer[ti * 3 + 2]]
+		);
+
+		for (int x = t.TopLeft.X; x < t.BottomRight.X; x++)
+		{
+			for (int y = t.TopLeft.Y; y < t.BottomRight.Y; y++)
+			{
+				ScreenPoint curPixel(x, y);
+				Vector2 curPos = curPixel.ToVector2();
+
+				if (t.IsInside(curPos))
+				{
+					PutPixel(curPixel, t.GetColor(curPos));
+				}
+			}
+		}
+	}
+
+	
 }
