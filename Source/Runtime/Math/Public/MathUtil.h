@@ -23,6 +23,16 @@ struct Math
 		return _mm_cvt_ss2si(_mm_set_ss(InFloat + InFloat + 0.5f)) >> 1;
 	}
 
+	static FORCEINLINE int FloorToInt(float InFloat)
+	{
+		return TruncToInt(floorf(InFloat));
+	}
+
+	static FORCEINLINE int CeilToInt(float InFloat)
+	{
+		return TruncToInt(ceilf(InFloat));
+	}
+
 	template<class T>
 	static constexpr FORCEINLINE T Square(const T InNum)
 	{
