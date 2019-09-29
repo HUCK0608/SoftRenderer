@@ -85,10 +85,24 @@ void WindowsGDI::FillBuffer()
 	}
 
 	Color32* dest = ScreenBuffer;
+	Color32* src = ScreenBuffer;
+
 	unsigned long totalCount = ScreenSize.X * ScreenSize.Y;
-	while (totalCount--)
+
+	while (totalCount)
 	{
-		*dest++ = CurrentColor;
+		*src = CurrentColor;
+		dest++;
+
+		unsigned long num = 1;
+		for (; num * 2 <= totalCount; num *= 2)
+		{
+			memcpy(dest, src, sizeof(Color32) * num);
+			dest += num;
+		}
+
+		totalCount -= num;
+		src = dest;
 	}
 
 	return;
