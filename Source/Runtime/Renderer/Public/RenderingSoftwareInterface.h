@@ -28,6 +28,8 @@ public:
 	virtual void SetVertexBuffer(VertexData* InVertexData) = 0;
 	virtual void SetIndexBuffer(const int* InIndexData) = 0;
 	virtual void DrawPrimitive() = 0;
+	virtual void DrawLine(const ScreenPoint& InPoint1, const ScreenPoint& InPoint2, const LinearColor& InColor) = 0;
+	virtual void DrawLine(const Vector2& InPoint1, const Vector2& InPoint2, const LinearColor& InColor) = 0;
 	virtual void DrawHorizontalLine(int InY, const LinearColor& InColor) = 0;
 	virtual void DrawVerticalLine(int InX, const LinearColor& InColor) = 0;
 

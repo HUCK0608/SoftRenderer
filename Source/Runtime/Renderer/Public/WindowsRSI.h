@@ -26,6 +26,8 @@ public:
 	virtual void SetVertexBuffer(VertexData* InVertexData) override;
 	virtual void SetIndexBuffer(const int* InIndexData) override;
 	virtual void DrawPrimitive() override;
+	virtual void DrawLine(const ScreenPoint& InPoint1, const ScreenPoint& InPoint2, const LinearColor& InColor) override;
+	virtual void DrawLine(const Vector2& InPoint1, const Vector2& InPoint2, const LinearColor& InColor) override;
 	virtual void DrawHorizontalLine(int InY, const LinearColor& InColor) override;
 	virtual void DrawVerticalLine(int inX, const LinearColor& InColor) override;
 };

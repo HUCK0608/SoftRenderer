@@ -76,6 +76,124 @@ void WindowsRSI::DrawPrimitive()
 	}
 }
 
+void WindowsRSI::DrawLine(const ScreenPoint& InPoint1, const ScreenPoint& InPoint2, const LinearColor& InColor)
+{
+	ScreenPoint startPoint = InPoint1.X < InPoint2.X ? InPoint1 : InPoint2;
+	ScreenPoint finalPoint = InPoint1.X < InPoint2.X ? InPoint2 : InPoint1;
+
+	// 제일 왼쪽 점을 구함
+	int x = startPoint.X;
+	int y = startPoint.Y;
+
+	int W = finalPoint.X - startPoint.X;
+	int H = finalPoint.Y - startPoint.Y;
+
+	// 1, 3 사분면 그리기
+	if (H > 0)
+	{
+		H = Math::Abs(H);
+
+		if (W > H)
+		{
+			int F = 2 * H - W;
+
+			int dF1 = 2 * H;
+			int dF2 = 2 * (H - W);
+
+			for (; x <= finalPoint.X; x++)
+			{
+				PutPixel(ScreenPoint(x, y), InColor);
+
+				if (F < 0)
+				{
+					F += dF1;
+				}
+				else
+				{
+					++y;
+					F += dF2;
+				}
+			}
+		}
+		else
+		{
+			int F = H - 2 * W;
+
+			int dF1 = -2 * W;
+			int dF2 = 2 * (H - W);
+
+			for (; y <= finalPoint.Y; y++)
+			{
+				PutPixel(ScreenPoint(x, y), InColor);
+
+				if (F >= 0)
+				{
+					F += dF1;
+				}
+				else
+				{
+					++x;
+					F += dF2;
+				}
+			}
+		}
+	}
+	else
+	{
+		H = Math::Abs(H);
+
+		if (W > H)
+		{
+			int F = 2 * H + W;
+
+			int dF1 = 2 * H;
+			int dF2 = 2 * (H + W);
+
+			for (; x <= finalPoint.X; x++)
+			{
+				PutPixel(ScreenPoint(x, y), InColor);
+
+				if (F < 0)
+				{
+					F += dF1;
+				}
+				else
+				{
+					--y;
+					F += dF2;
+				}
+			}
+		}
+		else
+		{
+			int F = H - 2 * W;
+
+			int dF1 = -2 * W;
+			int dF2 = 2 * (H - W);
+
+			for (; y <= finalPoint.Y; y++)
+			{
+				PutPixel(ScreenPoint(x, y), InColor);
+
+				if (F >= 0)
+				{
+					F += dF1;
+				}
+				else
+				{
+					++x;
+					F += dF2;
+				}
+			}
+		}
+	}
+}
+
+void WindowsRSI::DrawLine(const Vector2 & InPoint1, const Vector2 & InPoint2, const LinearColor & InColor)
+{
+	DrawLine(ScreenPoint(InPoint1), ScreenPoint(InPoint2), InColor);
+}
+
 void WindowsRSI::DrawHorizontalLine(int InY, const LinearColor & InColor)
 {
 	Color32 color = InColor.ToColor32();
