@@ -93,6 +93,7 @@ void WindowsRSI::DrawLine(const ScreenPoint& InPoint1, const ScreenPoint& InPoin
 	{
 		H = Math::Abs(H);
 
+		// 기울기가 수평에 가까울 경우
 		if (W > H)
 		{
 			int F = 2 * H - W;
@@ -115,6 +116,7 @@ void WindowsRSI::DrawLine(const ScreenPoint& InPoint1, const ScreenPoint& InPoin
 				}
 			}
 		}
+		// 기울기가 수직에 가까울 경우
 		else
 		{
 			int F = H - 2 * W;
@@ -138,16 +140,18 @@ void WindowsRSI::DrawLine(const ScreenPoint& InPoint1, const ScreenPoint& InPoin
 			}
 		}
 	}
+	// 2, 4 사분면 그리기
 	else
 	{
 		H = Math::Abs(H);
 
+		// 기울기가 수평에 가까울 경우
 		if (W > H)
 		{
-			int F = 2 * H + W;
+			int F = 2 * H - W;
 
 			int dF1 = 2 * H;
-			int dF2 = 2 * (H + W);
+			int dF2 = 2 * (H - W);
 
 			for (; x <= finalPoint.X; x++)
 			{
@@ -164,6 +168,7 @@ void WindowsRSI::DrawLine(const ScreenPoint& InPoint1, const ScreenPoint& InPoin
 				}
 			}
 		}
+		// 기울기가 수직에 가까울 경우
 		else
 		{
 			int F = H - 2 * W;
@@ -171,7 +176,7 @@ void WindowsRSI::DrawLine(const ScreenPoint& InPoint1, const ScreenPoint& InPoin
 			int dF1 = -2 * W;
 			int dF2 = 2 * (H - W);
 
-			for (; y <= finalPoint.Y; y++)
+			for (; y > finalPoint.Y; y--)
 			{
 				PutPixel(ScreenPoint(x, y), InColor);
 
