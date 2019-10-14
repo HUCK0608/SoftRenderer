@@ -24,7 +24,15 @@ public:
 	RenderMode GetRenderMode() const { return CurrentRenderMode; }
 	void Initialize();
 	void Shutdown();
+	void PreUpdate();
 	void Update();
+	void PostUpdate();
+
+	LONGLONG CheckMilliSeconds();
+	float GetFrameFPS() const {return FrameFPS;}
+	float GetAverageFPS() const {return FrameCount == 0 ? 0.0f : FrameCount / ElapsedTime;}
+	float GetElapsedTime() const {return ElapsedTime;}
+	int GetFrameCount() const {return FrameCount;}
 
 private:
 	SoftRenderer() { }
@@ -33,4 +41,12 @@ private:
 	RenderMode CurrentRenderMode = RenderMode::TWO;
 
 	WindowsRSI* RSI = nullptr;
+
+	double MilliSecFrequency = 0;
+	double FramePerMilliSeconds = 0;
+	float FramePerSeconds = 0;
+	float FrameFPS = 0;
+	float ElapsedTime = 0;
+	LONGLONG StartFrameSec = 0;
+	int FrameCount = 0;
 };

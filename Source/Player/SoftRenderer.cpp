@@ -6,6 +6,12 @@
 
 void SoftRenderer::Initialize()
 {
+	LARGE_INTEGER frequency;
+	if (!QueryPerformanceFrequency(&frequency))
+		return;
+
+	MilliSecFrequency = double(frequency.QuadPart) / 1000.0;
+
 	RSI = new WindowsRSI();
 	if (RSI != nullptr)
 	{
@@ -22,6 +28,13 @@ void SoftRenderer::Shutdown()
 		RSI = nullptr;
 	}
 }
+
+void SoftRenderer::PreUpdate()
+{
+	StartFrameSec = CheckMilliSeconds();
+}
+
+static float currentRotation = 0.f;
 
 void SoftRenderer::Update()
 {
@@ -55,42 +68,83 @@ void SoftRenderer::Update()
 			RSI->DrawHorizontalLine(-y, LinearColor(0.5f, 0.5f, 0.5f, 1.f));
 		}
 
-		RSI->DrawLine(Vector2(30.0f, 30.0f), Vector2(60.0f, 200.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
+		/*RSI->DrawLine(Vector2(30.0f, 30.0f), Vector2(60.0f, 200.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
 		RSI->DrawLine(Vector2(30.0f, 30.0f), Vector2(200.0f, 60.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
 		RSI->DrawLine(Vector2(-30.0f, 30.0f), Vector2(-60.0f, 200.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
 		RSI->DrawLine(Vector2(-30.0f, 30.0f), Vector2(-200.0f, 60.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
 		RSI->DrawLine(Vector2(-30.0f, -30.0f), Vector2(-60.0f, -200.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
 		RSI->DrawLine(Vector2(-30.0f, -30.0f), Vector2(-200.0f, -60.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
 		RSI->DrawLine(Vector2(30.0f, -30.0f), Vector2(60.0f, -200.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
-		RSI->DrawLine(Vector2(30.0f, -30.0f), Vector2(200.0f, -60.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
+		RSI->DrawLine(Vector2(30.0f, -30.0f), Vector2(200.0f, -60.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));*/
 
-		//// Set Vertex
-		//VertexData v[4];
-		//v[0].Position = Vector2(100.0f, 100.0f);
-		//v[0].Color = LinearColor(1.0f, 0.0f, 0.0f);
-		//v[1].Position = Vector2(-100.0f, -100.0f);
-		//v[1].Color = LinearColor(1.0f, 0.0f, 0.0f);
-		//v[2].Position = Vector2(-100.0f, 100.0f);
-		//v[2].Color = LinearColor(0.0f, 0.0f, 1.0f);
-		//v[3].Position = Vector2(100.0f, -100.0f);
-		//v[3].Color = LinearColor(0.0f, 1.0f, 0.0f);
+		float sin, cos;
+		float rotationSpeed = 30.f;
+		currentRotation = GetFrameFPS() == 0 ? 0 : currentRotation + rotationSpeed / GetFrameFPS();
+		Math::GetSinCos(sin, cos, currentRotation);
+		Matrix2x2 rMat(Vector2(cos, sin), Vector2(-sin, cos));
 
-		//// Set Index
-		//int i[6];
-		//i[0] = 0;
-		//i[1] = 1;
-		//i[2] = 2;
-		//i[3] = 0;
-		//i[4] = 1;
-		//i[5] = 3;
+		float sinWave = sinf((ElapsedTime * Math::TwoPI) + 1) * 0.5f;
+		float minScale = 0.8f;
+		float maxScale = 1.6f;
+		float currentScale = minScale + sinWave * (maxScale - minScale);
+		Matrix2x2 sMat(Vector2::UnitX * currentScale, Vector2::UnitY * currentScale);
 
-		//// Draw Primitive
-		//RSI->SetVertexBuffer(v);
-		//RSI->SetIndexBuffer(i);
-		//RSI->DrawPrimitive();
+		Matrix2x2 TRSMat = rMat * sMat;
+
+		// Set Vertex
+		VertexData v[4];
+		v[0].Position = Vector2(100.0f, 100.0f);
+		v[0].Color = LinearColor(1.0f, 0.0f, 0.0f);
+		v[1].Position = Vector2(-100.0f, -100.0f);
+		v[1].Color = LinearColor(1.0f, 0.0f, 0.0f);
+		v[2].Position = Vector2(-100.0f, 100.0f);
+		v[2].Color = LinearColor(0.0f, 0.0f, 1.0f);
+		v[3].Position = Vector2(100.0f, -100.0f);
+		v[3].Color = LinearColor(0.0f, 1.0f, 0.0f);
+
+		for (int i = 0; i < 4; i++)
+		{
+			v[i].Position = TRSMat * v[i].Position;
+		}
+
+		// Set Index
+		int i[6];
+		i[0] = 0;
+		i[1] = 1;
+		i[2] = 2;
+		i[3] = 0;
+		i[4] = 1;
+		i[5] = 3;
+
+		// Draw Primitive
+		RSI->SetVertexBuffer(v);
+		RSI->SetIndexBuffer(i);
+		RSI->DrawPrimitive();
 
 		RSI->EndFrame();
 	}
+}
+
+void SoftRenderer::PostUpdate()
+{
+	FrameCount++;
+
+	LARGE_INTEGER currentTime;
+	QueryPerformanceCounter(&currentTime);
+	LONGLONG elapsedCycles = currentTime.QuadPart - StartFrameSec;
+
+	FramePerMilliSeconds = double(elapsedCycles / 1000.0) / (MilliSecFrequency / 1000.0);
+	FramePerSeconds = (float)(FramePerMilliSeconds / 1000.0);
+	ElapsedTime += FramePerSeconds;
+	FrameFPS = FramePerSeconds == 0 ? 0 : 1 / FramePerSeconds;
+}
+
+LONGLONG SoftRenderer::CheckMilliSeconds()
+{
+	LARGE_INTEGER cycles;
+	QueryPerformanceCounter(&cycles);
+
+	return cycles.QuadPart;
 }
 
 
