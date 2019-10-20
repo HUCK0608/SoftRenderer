@@ -34,7 +34,7 @@ void SoftRenderer::PreUpdate()
 	StartFrameSec = CheckMilliSeconds();
 }
 
-static float currentRotation = 0.f;
+static float currentDegree = 0.f;
 
 void SoftRenderer::Update()
 {
@@ -77,19 +77,21 @@ void SoftRenderer::Update()
 		RSI->DrawLine(Vector2(30.0f, -30.0f), Vector2(60.0f, -200.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
 		RSI->DrawLine(Vector2(30.0f, -30.0f), Vector2(200.0f, -60.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));*/
 
-		float sin, cos;
-		float rotationSpeed = 30.f;
-		currentRotation = GetFrameFPS() == 0 ? 0 : currentRotation + rotationSpeed / GetFrameFPS();
-		Math::GetSinCos(sin, cos, currentRotation);
-		Matrix2x2 rMat(Vector2(cos, sin), Vector2(-sin, cos));
+		Matrix3x3 tMat, rMat, sMat;
+
+		tMat.SetTranslation(Vector2(100.f, 200.f));
+
+		float degreeTo1Sec = 180.f;
+		currentDegree = GetFrameFPS() == 0 ? 0 : currentDegree + degreeTo1Sec / GetFrameFPS();
+		rMat.SetRotation(currentDegree);
 
 		float sinWave = sinf((ElapsedTime * Math::TwoPI) + 1) * 0.5f;
 		float minScale = 0.8f;
 		float maxScale = 1.6f;
 		float currentScale = minScale + sinWave * (maxScale - minScale);
-		Matrix2x2 sMat(Vector2::UnitX * currentScale, Vector2::UnitY * currentScale);
+		sMat.SetScale(Vector2(currentScale, currentScale));
 
-		Matrix2x2 TRSMat = rMat * sMat;
+		Matrix3x3 TRSMat = tMat * rMat * sMat;
 
 		// Set Vertex
 		VertexData v[4];
