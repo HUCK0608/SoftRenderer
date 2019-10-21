@@ -211,11 +211,19 @@ static bool LoopInstance()
 		}
 	}
 
-	// Begin Update.
+	// Performance Profiling Start
 	SoftRenderer::Inst().PreUpdate();
+
+	// Input State
+	SoftRenderer::Inst().GetInputManager().IsLeft = GetAsyncKeyState(VK_LEFT);
+	SoftRenderer::Inst().GetInputManager().IsRight = GetAsyncKeyState(VK_RIGHT);
+	SoftRenderer::Inst().GetInputManager().IsDown = GetAsyncKeyState(VK_DOWN);
+	SoftRenderer::Inst().GetInputManager().IsUp = GetAsyncKeyState(VK_UP);
+
 	// Set Update Logic Here.
 	SoftRenderer::Inst().Update();
-	// End Update.
+
+	// Performance Profiling End
 	SoftRenderer::Inst().PostUpdate();
 
 	return true;

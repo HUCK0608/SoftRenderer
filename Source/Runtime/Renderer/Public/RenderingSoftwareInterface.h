@@ -1,14 +1,16 @@
-
 #pragma once
 
 #include "DisplaySetting.h"
 #include "LinearColor.h"
+#include "Vertex.h"
 
-struct VertexData
+struct RSITexture
 {
-	Vector2 Position;
-	LinearColor Color = LinearColor::Error;
-	Vector2 uv;
+	RSITexture() = default;
+	RSITexture(LinearColor* InTextureBuffer, UINT InWidth, UINT InHeight) : TextureBuffer(InTextureBuffer), Width(InWidth), Height(InHeight) {}
+	UINT Width = 0;
+	UINT Height = 0;
+	LinearColor* TextureBuffer = nullptr;
 };
 
 class RenderingSoftwareInterface
@@ -25,15 +27,14 @@ public:
 
 	virtual void DrawScreenPoint(const ScreenPoint& InPoint,const LinearColor& InColor) = 0;
 
-	virtual void SetVertexBuffer(VertexData* InVertexData) = 0;
+	virtual void SetVertexBuffer(Vertex* InVertexData) = 0;
 	virtual void SetIndexBuffer(const int* InIndexData) = 0;
-	virtual void DrawPrimitive() = 0;
+	virtual int SetTexture(RSITexture& InRSITexture) = 0;
+	virtual void DrawPrimitive(UINT InVertexSize, UINT InIndexSize) = 0;
+	virtual void DrawBottomFlatTriangle(Vertex * tvs) = 0;
+	virtual void DrawTopFlatTriangle(Vertex * tvs, bool DrawLastLine) = 0;
 	virtual void DrawLine(const ScreenPoint& InPoint1, const ScreenPoint& InPoint2, const LinearColor& InColor) = 0;
 	virtual void DrawLine(const Vector2& InPoint1, const Vector2& InPoint2, const LinearColor& InColor) = 0;
 	virtual void DrawHorizontalLine(int InY, const LinearColor& InColor) = 0;
 	virtual void DrawVerticalLine(int InX, const LinearColor& InColor) = 0;
-
-public:
-	VertexData* VertexBuffer;
-	const int* IndexBuffer;
 };

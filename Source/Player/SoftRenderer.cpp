@@ -3,6 +3,7 @@
 #include "SoftRenderer.h"
 #include "WindowsRSI.h"
 #include "MathHeaders.h"
+#include "EngineHeaders.h"
 
 void SoftRenderer::Initialize()
 {
@@ -13,10 +14,11 @@ void SoftRenderer::Initialize()
 	MilliSecFrequency = double(frequency.QuadPart) / 1000.0;
 
 	RSI = new WindowsRSI();
-	if (RSI != nullptr)
-	{
-		RSI->Init(false);
-	}
+	if (RSI == nullptr)
+		return;
+
+	RSI->Init(false);
+	MainTexture.LoadPNGFile("Steve.png");
 }
 
 void SoftRenderer::Shutdown()
@@ -34,6 +36,7 @@ void SoftRenderer::PreUpdate()
 	StartFrameSec = CheckMilliSeconds();
 }
 
+static Vector2 currentPosition;
 static float currentDegree = 0.f;
 
 void SoftRenderer::Update()
@@ -42,72 +45,20 @@ void SoftRenderer::Update()
 	{
 		RSI->Clear(LinearColor(0.125f, 0.5f, 1.f, 1.f)); 
 
-		//RenderCode
-
-		// Axis Line
-		RSI->DrawHorizontalLine(0, LinearColor(1.f, 0.f, 0.f, 1.f));
-		RSI->DrawVerticalLine(0, LinearColor(0.f, 1.f, 0.f, 1.f));
-
-		// Grid Line
-		ScreenPoint screenSize = DisplaySetting::Inst().GetSize();
-
-		
-		int gridSize = 10;
-		int halfX = Math::FloorToInt(((float)screenSize.X - 1.f) * 0.5f);
-		int halfY = Math::FloorToInt(((float)screenSize.Y - 1.f) * 0.5f);
-
-		for (int x = gridSize; x < halfX; x += gridSize)
-		{
-			RSI->DrawVerticalLine(x, LinearColor(0.5f, 0.5f, 0.5f, 1.f));
-			RSI->DrawVerticalLine(-x, LinearColor(0.5f, 0.5f, 0.5f, 1.f));
-		}
-
-		for (int y = gridSize; y < halfY; y += gridSize)
-		{
-			RSI->DrawHorizontalLine(y, LinearColor(0.5f, 0.5f, 0.5f, 1.f));
-			RSI->DrawHorizontalLine(-y, LinearColor(0.5f, 0.5f, 0.5f, 1.f));
-		}
-
-		/*RSI->DrawLine(Vector2(30.0f, 30.0f), Vector2(60.0f, 200.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
-		RSI->DrawLine(Vector2(30.0f, 30.0f), Vector2(200.0f, 60.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
-		RSI->DrawLine(Vector2(-30.0f, 30.0f), Vector2(-60.0f, 200.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
-		RSI->DrawLine(Vector2(-30.0f, 30.0f), Vector2(-200.0f, 60.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
-		RSI->DrawLine(Vector2(-30.0f, -30.0f), Vector2(-60.0f, -200.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
-		RSI->DrawLine(Vector2(-30.0f, -30.0f), Vector2(-200.0f, -60.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
-		RSI->DrawLine(Vector2(30.0f, -30.0f), Vector2(60.0f, -200.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));
-		RSI->DrawLine(Vector2(30.0f, -30.0f), Vector2(200.0f, -60.0f), LinearColor(0.0f, 0.0f, 1.0f, 1.0f));*/
-
-		Matrix3x3 tMat, rMat, sMat;
-
-		tMat.SetTranslation(Vector2(100.f, 200.f));
-
-		float degreeTo1Sec = 180.f;
-		currentDegree = GetFrameFPS() == 0 ? 0 : currentDegree + degreeTo1Sec / GetFrameFPS();
-		rMat.SetRotation(currentDegree);
-
-		float sinWave = sinf((ElapsedTime * Math::TwoPI) + 1) * 0.5f;
-		float minScale = 0.8f;
-		float maxScale = 1.6f;
-		float currentScale = minScale + sinWave * (maxScale - minScale);
-		sMat.SetScale(Vector2(currentScale, currentScale));
-
-		Matrix3x3 TRSMat = tMat * rMat * sMat;
-
 		// Set Vertex
-		VertexData v[4];
+		Vertex v[4];
 		v[0].Position = Vector2(100.0f, 100.0f);
 		v[0].Color = LinearColor(1.0f, 0.0f, 0.0f);
+		v[0].UV = Vector2(0.25f, 0.25f);
 		v[1].Position = Vector2(-100.0f, -100.0f);
 		v[1].Color = LinearColor(1.0f, 0.0f, 0.0f);
+		v[1].UV = Vector2(0.125f, 0.125f);
 		v[2].Position = Vector2(-100.0f, 100.0f);
 		v[2].Color = LinearColor(0.0f, 0.0f, 1.0f);
+		v[2].UV = Vector2(0.125f, 0.25f);
 		v[3].Position = Vector2(100.0f, -100.0f);
 		v[3].Color = LinearColor(0.0f, 1.0f, 0.0f);
-
-		for (int i = 0; i < 4; i++)
-		{
-			v[i].Position = TRSMat * v[i].Position;
-		}
+		v[3].UV = Vector2(0.25f, 0.125f);
 
 		// Set Index
 		int i[6];
@@ -119,9 +70,43 @@ void SoftRenderer::Update()
 		i[5] = 3;
 
 		// Draw Primitive
+		RSI->SetTexture(RSITexture(MainTexture.GetBuffer(), MainTexture.GetWidth(), MainTexture.GetHeight()));
 		RSI->SetVertexBuffer(v);
 		RSI->SetIndexBuffer(i);
-		RSI->DrawPrimitive();
+
+		// Render & Transform
+		static GameObject2D quad;
+
+		float degreeTo1Sec = 180.f;
+		currentDegree = GetFrameFPS() == 0 ? 0 : currentDegree + degreeTo1Sec / GetFrameFPS();
+
+		float sinWave = sinf((ElapsedTime * Math::TwoPI) + 1) * 0.5f;
+		float minScale = 0.8f;
+		float maxScale = 1.6f;
+		float currentScale = minScale + sinWave * (maxScale - minScale);
+
+		quad.GetTransform().SetPosition(Vector2(0.f, 0.f));
+		quad.GetTransform().SetRotation(currentDegree);
+		quad.GetTransform().SetScale(Vector2(currentScale, currentScale));
+		Matrix3x3 TRSMat = quad.GetTransform().GetTRS();
+
+		// Camera Movement
+		static Camera2D camera2D;
+
+		float moveSpeed = 300.f;
+		currentPosition.X += GetFrameFPS() == 0.f ? 0.f : (moveSpeed / GetFrameFPS()) * InputManager.GetXAxis();
+		currentPosition.Y += GetFrameFPS() == 0.f ? 0.f : (moveSpeed / GetFrameFPS()) * InputManager.GetYAxis();
+
+		camera2D.GetGameObject().GetTransform().SetPosition(currentPosition);
+
+		Matrix3x3 finalMatrix = camera2D.GetViewMatrix() * TRSMat;
+
+		for (int i = 0; i < 4; i++)
+		{
+			v[i].Position = finalMatrix * v[i].Position;
+		}
+
+		RSI->DrawPrimitive(4, 6);
 
 		RSI->EndFrame();
 	}

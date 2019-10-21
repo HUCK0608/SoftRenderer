@@ -12,9 +12,6 @@ public:
 	Matrix3x3(float In00, float In01, float In02, float In10, float In11, float In12, float In20, float In21, float In22);
 
 	FORCEINLINE void SetIdentity();
-	FORCEINLINE void SetTranslation(Vector2 InTranslation);
-	FORCEINLINE void SetRotation(float InDegree);
-	FORCEINLINE void SetScale(Vector2 InScale);
 	FORCEINLINE Matrix3x3 Tranpose() const;
 
 	FORCEINLINE const Vector3& operator[](int InIndex)const;
@@ -46,33 +43,6 @@ private:
 FORCEINLINE void Matrix3x3::SetIdentity()
 {
 	*this = Matrix3x3::Identity;
-}
-
-FORCEINLINE void Matrix3x3::SetTranslation(Vector2 InTranslation)
-{
-	Cols[0] = Vector3::UnitX;
-	Cols[1] = Vector3::UnitY;
-	Cols[2] = Vector3::UnitY;
-
-	Cols[2][0] = InTranslation.X;
-	Cols[2][1] = InTranslation.Y;
-}
-
-FORCEINLINE void Matrix3x3::SetRotation(float InDegree)
-{
-	float sin, cos;
-	Math::GetSinCos(sin, cos, InDegree);
-
-	Cols[0] = Vector3(cos, sin, 0.f);
-	Cols[1] = Vector3(-sin, cos, 0.f);
-	Cols[2] = Vector3::UnitZ;
-}
-
-FORCEINLINE void Matrix3x3::SetScale(Vector2 InScale)
-{
-	Cols[0] = Vector3::UnitX * InScale.X;
-	Cols[1] = Vector3::UnitY * InScale.Y;
-	Cols[2] = Vector3::UnitZ;
 }
 
 FORCEINLINE Matrix3x3 Matrix3x3::Tranpose() const

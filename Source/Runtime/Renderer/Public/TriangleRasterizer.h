@@ -8,7 +8,7 @@ class TriangleRasterizer
 {
 public:
 	TriangleRasterizer();
-	explicit TriangleRasterizer(VertexData InVertex0, VertexData InVertex1, VertexData InVertex2);
+	explicit TriangleRasterizer(Vertex InVertex0, Vertex InVertex1, Vertex InVertex2);
 
 public:
 	FORCEINLINE bool HasColor() const { return bHasColor; }
@@ -47,8 +47,19 @@ public:
 		return Vector2(s, t);
 	}
 
+	FORCEINLINE Vector2 GetUV(const Vector2& InScreenPosition) const
+	{
+		if (!HasUV())
+		{
+			return Vector2::Zero;
+		}
+		Vector2 st = GetBaryCentricCoord(InScreenPosition);
+		float oneMinusST = 1 - st.X - st.Y;
+		return VertexBuffer[0].UV * oneMinusST + VertexBuffer[1].UV * st.X + VertexBuffer[2].UV * st.Y;
+	}
+
 public:
-	VertexData VertexBuffer[3];
+	Vertex VertexBuffer[3];
 	ScreenPoint TopLeft;
 	ScreenPoint BottomRight;
 

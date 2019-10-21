@@ -6,7 +6,7 @@ TriangleRasterizer::TriangleRasterizer()
 	RecalcBounds();
 }
 
-TriangleRasterizer::TriangleRasterizer(VertexData InVertex0, VertexData InVertex1, VertexData InVertex2)
+TriangleRasterizer::TriangleRasterizer(Vertex InVertex0, Vertex InVertex1, Vertex InVertex2)
 {
 	VertexBuffer[0] = InVertex0;
 	VertexBuffer[1] = InVertex1;

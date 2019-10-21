@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <windows.h>
@@ -23,11 +22,22 @@ public:
 	virtual void EndFrame() override;
 
 	virtual void DrawScreenPoint(const ScreenPoint& InPoint, const LinearColor& InColor) override;
-	virtual void SetVertexBuffer(VertexData* InVertexData) override;
+	virtual void SetVertexBuffer(Vertex* InVertexData) override;
 	virtual void SetIndexBuffer(const int* InIndexData) override;
-	virtual void DrawPrimitive() override;
+	virtual int SetTexture(RSITexture& InRSITexture) override;
+	virtual void DrawPrimitive(UINT InVertexSize, UINT InIndexSize) override;
+	virtual void DrawTopFlatTriangle(Vertex * tvs, bool DrawLastLine) override;
+	virtual void DrawBottomFlatTriangle(Vertex * tvs) override;
 	virtual void DrawLine(const ScreenPoint& InPoint1, const ScreenPoint& InPoint2, const LinearColor& InColor) override;
 	virtual void DrawLine(const Vector2& InPoint1, const Vector2& InPoint2, const LinearColor& InColor) override;
 	virtual void DrawHorizontalLine(int InY, const LinearColor& InColor) override;
 	virtual void DrawVerticalLine(int inX, const LinearColor& InColor) override;
+
+	LinearColor GetTextureSample(const Vector2& InUV);
+
+private:
+	Vertex* VertexBuffer;
+	const int* IndexBuffer;
+	RSITexture MainTexture;
+	bool HasTexture = false;
 };
