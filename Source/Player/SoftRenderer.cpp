@@ -49,16 +49,16 @@ void SoftRenderer::Update()
 		Vertex v[4];
 		v[0].Position = Vector2(100.0f, 100.0f);
 		v[0].Color = LinearColor(1.0f, 0.0f, 0.0f);
-		v[0].UV = Vector2(0.25f, 0.25f);
+		v[0].UV = Vector2(0.125f, 0.125f);
 		v[1].Position = Vector2(-100.0f, -100.0f);
 		v[1].Color = LinearColor(1.0f, 0.0f, 0.0f);
-		v[1].UV = Vector2(0.125f, 0.125f);
+		v[1].UV = Vector2(0.25f, 0.25f);
 		v[2].Position = Vector2(-100.0f, 100.0f);
 		v[2].Color = LinearColor(0.0f, 0.0f, 1.0f);
-		v[2].UV = Vector2(0.125f, 0.25f);
+		v[2].UV = Vector2(0.25f, 0.125f);
 		v[3].Position = Vector2(100.0f, -100.0f);
 		v[3].Color = LinearColor(0.0f, 1.0f, 0.0f);
-		v[3].UV = Vector2(0.25f, 0.125f);
+		v[3].UV = Vector2(0.125f, 0.25f);
 
 		// Set Index
 		int i[6];
@@ -99,7 +99,7 @@ void SoftRenderer::Update()
 
 		camera2D.GetGameObject().GetTransform().SetPosition(currentPosition);
 
-		Matrix3x3 finalMatrix = camera2D.GetViewMatrix() * TRSMat;
+		Matrix3x3 finalMatrix = camera2D.GetViewMatrix();
 
 		for (int i = 0; i < 4; i++)
 		{

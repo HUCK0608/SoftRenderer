@@ -116,7 +116,7 @@ void WindowsRSI::DrawBottomFlatTriangle(Vertex * tvs)
 	float gradient1 = dx1 / dy;
 	float gradient2 = dx2 / dy;
 
-	PutPixel(ScreenPoint(tvs[0].Position), LinearColor(0.f, 1.f, 0.f));
+	PutPixel(ScreenPoint(tvs[0].Position), GetTextureSample(tvs[0].UV));
 	float startY = tvs[0].Position.Y;
 	float startX = tvs[0].Position.X;
 	float currentY = floorf(tvs[0].Position.Y) - 0.5f;
@@ -129,9 +129,14 @@ void WindowsRSI::DrawBottomFlatTriangle(Vertex * tvs)
 		int startX = Math::FloorToInt(leftX);
 		int endX = Math::FloorToInt(rightX);
 		int pixelY = Math::FloorToInt(currentY);
+
+		float normalizedUVY = tvs[0].UV.Y - (((tvs[0].UV.Y - tvs[1].UV.Y) / ((startY - destY))) * deltaY);
+
 		for (int p = startX; p <= endX; ++p)
 		{
-			PutPixel(ScreenPoint(p, pixelY), LinearColor(0.f, 1.f, 0.f));
+			float deltaX = rightX + p;
+			float normalizedUVX = tvs[1].UV.X + (((tvs[0].UV.X - tvs[1].UV.X) / (tvs[0].Position.X - tvs[1].Position.X)) * deltaX);
+			PutPixel(ScreenPoint(p, pixelY), GetTextureSample(tvs[0].UV + Vector2(normalizedUVX, normalizedUVY)));
 		}
 		currentY -= 1.0f;
 	}
